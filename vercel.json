@@ -6,7 +6,7 @@
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "50mb",
-        "runtime": "python3.9"
+        "runtime": "python3.12"
       }
     },
     {
@@ -25,8 +25,6 @@
     }
   ],
   "env": {
-    "FLASK_ENV": "production",
-    "PYTHONPATH": ".",
-    "VERCEL": "true"
+    "FLASK_ENV": "production"
   }
 }
