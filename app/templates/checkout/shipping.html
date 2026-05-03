@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Golden Kitchen Nigeria{% endblock %}
+
+{% block content %}
+<div class="checkout-page py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="checkout-form">
+                    <h3 class="mb-4">Shipping Information</h3>
+                    <form method="POST" action="{{ url_for('checkout.process_order') }}" id="checkoutForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="shipping_name" class="form-control" required value="{{ current_user.get_full_name() }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number *</label>
+                                <input type="tel" name="shipping_phone" class="form-control" required placeholder="0803 123 4567" value="{{ current_user.phone or '' }}">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="shipping_email" class="form-control" required value="{{ current_user.email }}">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Address *</label>
+                                <input type="text" name="shipping_address" class="form-control" required placeholder="Street address, house number" value="{{ current_user.address or '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">State *</label>
+                                <select name="shipping_state" id="shipping_state" class="form-select" required>
+                                    <option value="">Select State</option>
+                                    <option value="Lagos">Lagos</option>
+                                    <option value="Abuja FCT">Abuja FCT</option>
+                                    <option value="Rivers">Rivers</option>
+                                    <option value="Ogun">Ogun</option>
+                                    <option value="Oyo">Oyo</option>
+                                    <option value="Kano">Kano</option>
+                                    <option value="Kaduna">Kaduna</option>
+                                    <option value="Delta">Delta</option>
+                                    <option value="Edo">Edo</option>
+                                    <option value="Enugu">Enugu</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">City/Town *</label>
+                                <input type="text" name="shipping_city" class="form-control" required value="{{ current_user.city or '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" name="shipping_postal_code" class="form-control" value="{{ current_user.postal_code or '' }}">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Order Notes (Optional)</label>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Special delivery instructions"></textarea>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Payment Method *</label>
+                                <select name="payment_method" class="form-select" required>
+                                    <option value="cash_on_delivery">Cash on Delivery (Pay when you receive)</option>
+                                    <option value="bank_transfer">Bank Transfer (FirstBank, GTBank, UBA)</option>
+                                    <option value="card">Card Payment (Verve, Mastercard, Visa)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-terracotta btn-lg w-100">Place Order</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="order-summary">
+                    <h4>Order Summary</h4>
+                    {% for item in cart_items %}
+                    <div class="summary-item">
+                        <div class="item-info">
+                            <span class="item-name">{{ item.product.name }}</span>
+                            <span class="item-quantity">x{{ item.quantity }}</span>
+                        </div>
+                        <span class="item-price">₦{{ "%.2f"|format(item.total) }}</span>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>₦{{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+                    
+                    {% if discount > 0 %}
+                    <div class="summary-row text-success">
+                        <span>Discount ({{ coupon_code }}):</span>
+                        <span>-₦{{ "%.2f"|format(discount) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>After Discount:</span>
+                        <span>₦{{ "%.2f"|format(subtotal_after_discount) }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="summary-row">
+                        <span>Shipping:</span>
+                        <span id="shippingAmount">₦{{ "%.2f"|format(shipping_cost) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>VAT (7.5%):</span>
+                        <span>₦{{ "%.2f"|format(vat) }}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="totalAmount">₦{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    
+                    <div class="delivery-info mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-truck"></i> Delivery: 2-5 business days within Nigeria<br>
+                            <i class="fas fa-undo-alt"></i> Returns: 7 days return policy
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Calculate shipping based on selected state
+const stateSelect = document.getElementById('shipping_state');
+if (stateSelect) {
+    stateSelect.addEventListener('change', function() {
+        const state = this.value;
+        const subtotalAfterDiscount = {{ subtotal_after_discount|float }};
+        
+        let shippingCost = 2500;
+        if (state === 'Lagos') shippingCost = 2500;
+        else if (state === 'Ogun') shippingCost = 2500;
+        else if (state === 'Oyo') shippingCost = 3000;
+        else if (state === 'Abuja FCT') shippingCost = 3500;
+        else if (state === 'Rivers') shippingCost = 4000;
+        else if (state === 'Delta') shippingCost = 4000;
+        else if (state === 'Kano') shippingCost = 4500;
+        else if (state === 'Kaduna') shippingCost = 4500;
+        else if (state === 'Others') shippingCost = 5000;
+        
+        // Free shipping for orders over ₦50,000
+        if (subtotalAfterDiscount >= 50000) {
+            shippingCost = 0;
+        }
+        
+        const vat = subtotalAfterDiscount * 0.075;
+        const total = subtotalAfterDiscount + shippingCost + vat;
+        
+        document.getElementById('shippingAmount').innerHTML = `₦${shippingCost.toFixed(2)}`;
+        document.getElementById('vatAmount').innerHTML = `₦${vat.toFixed(2)}`;
+        document.getElementById('totalAmount').innerHTML = `₦${total.toFixed(2)}`;
+    });
+}
+</script>
+
+<style>
+.checkout-form, .order-summary {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.order-summary {
+    position: sticky;
+    top: 100px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.summary-row.total {
+    font-size: 18px;
+    font-weight: bold;
+    color: #E67E22;
+    border-top: 2px solid #eee;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.delivery-info {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    .checkout-form, .order-summary {
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,48 @@
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <h4><i class="fas fa-utensils text-terracotta"></i> Golden Kitchen Nigeria</h4>
+                <p>Premium cooking utensils delivered to your doorstep in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 mb-4">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('main.products') }}">Shop</a></li>
+                    <li><a href="{{ url_for('main.faq') }}">FAQ</a></li>
+                    <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5>Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope"></i> hello@goldenkitchen.ng</li>
+                    <li><i class="fas fa-phone"></i> +234 812 345 6789</li>
+                    <li><i class="fab fa-whatsapp"></i> WhatsApp: +234 812 345 6789</li>
+                </ul>
+            </div>
+            <div class="col-lg-3 mb-4">
+                <h5>Newsletter</h5>
+                <p>Get exclusive offers and recipes!</p>
+                <form action="{{ url_for('main.subscribe_newsletter') }}" method="POST">
+                    <div class="input-group">
+                        <input type="email" name="email" class="form-control" placeholder="Your email" required>
+                        <button class="btn btn-terracotta" type="submit">Subscribe</button>
+                    </div>
+                </form>
+                <div class="mt-3">
+                    <small>We deliver nationwide!</small>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            <p>&copy; 2024 Golden Kitchen Nigeria. All rights reserved. Made in Nigeria 🇳🇬</p>
+        </div>
+    </div>
+</footer>

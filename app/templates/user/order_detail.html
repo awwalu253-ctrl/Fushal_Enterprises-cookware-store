@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.order_number }}{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('user.orders') }}">My Orders</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ order.order_number }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-page py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h4 class="mb-0">Order #{{ order.order_number }}</h4>
+                            </div>
+                            <div class="col text-end">
+                                {% if order.status == 'pending' %}
+                                <span class="badge bg-warning fs-6">Pending</span>
+                                {% elif order.status == 'processing' %}
+                                <span class="badge bg-info fs-6">Processing</span>
+                                {% elif order.status == 'shipped' %}
+                                <span class="badge bg-primary fs-6">Shipped</span>
+                                {% elif order.status == 'delivered' %}
+                                <span class="badge bg-success fs-6">Delivered</span>
+                                {% elif order.status == 'cancelled' %}
+                                <span class="badge bg-danger fs-6">Cancelled</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Order Information</h6>
+                                <p>
+                                    <strong>Order Date:</strong> {{ order.created_at.strftime('%B %d, %Y') }}<br>
+                                    <strong>Payment Method:</strong> {{ order.payment_method or 'Not specified' }}<br>
+                                    <strong>Payment Status:</strong> {{ order.payment_status or 'Pending' }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Shipping Information</h6>
+                                <p>
+                                    {{ order.shipping_name }}<br>
+                                    {{ order.shipping_address }}<br>
+                                    {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_postal_code }}<br>
+                                    {{ order.shipping_country }}<br>
+                                    <strong>Phone:</strong> {{ order.shipping_phone or 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h6>Order Items</h6>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.items %}
+                                    <tr>
+                                        <td>{{ item.product_name }}</td>
+                                        <td>${{ "%.2f"|format(item.price) }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>${{ "%.2f"|format(item.total) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr><td colspan="3" class="text-end"><strong>Subtotal:</strong></td><td>${{ "%.2f"|format(order.subtotal) }}</td></tr>
+                                    <tr><td colspan="3" class="text-end"><strong>Shipping:</strong></td><td>${{ "%.2f"|format(order.shipping_cost) }}</td></tr>
+                                    <tr><td colspan="3" class="text-end"><strong>Tax:</strong></td><td>${{ "%.2f"|format(order.tax) }}</td></tr>
+                                    <tr><td colspan="3" class="text-end"><strong>Total:</strong></td><td><strong>${{ "%.2f"|format(order.total) }}</strong></td></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <a href="{{ url_for('user.orders') }}" class="btn btn-outline-terracotta">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Orders
+                    </a>
+                    <a href="{{ url_for('main.products') }}" class="btn btn-terracotta">
+                        <i class="fas fa-shopping-bag me-2"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

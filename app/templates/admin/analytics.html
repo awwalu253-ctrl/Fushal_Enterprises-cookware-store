@@ -1,0 +1,172 @@
+{% extends "admin/base_admin.html" %}
+
+{% block page_title %}Analytics{% endblock %}
+
+{% block admin_content %}
+<div class="analytics-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Sales Analytics</h2>
+        <select id="timeRange" class="form-select" style="width: auto;">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last year</option>
+        </select>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Revenue</h6>
+                    <h3 id="totalRevenue">₦0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">Average Order Value</h6>
+                    <h3 id="avgOrderValue">₦0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">Conversion Rate</h6>
+                    <h3 id="conversionRate">0%</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">Repeat Customer Rate</h6>
+                    <h3 id="repeatRate">0%</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Revenue Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Sales by Category</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Customer Growth -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Customer Growth</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="customerChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let revenueChart = null;
+let categoryChart = null;
+let customerChart = null;
+
+function loadAnalyticsData(days) {
+    fetch(`/admin/api/analytics-data?days=${days}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update metrics
+            document.getElementById('totalRevenue').innerHTML = '₦' + data.total_revenue.toLocaleString();
+            document.getElementById('avgOrderValue').innerHTML = '₦' + data.avg_order_value.toLocaleString();
+            document.getElementById('conversionRate').innerHTML = data.conversion_rate + '%';
+            document.getElementById('repeatRate').innerHTML = data.repeat_rate + '%';
+            
+            // Update or create charts
+            if (revenueChart) {
+                revenueChart.data.labels = data.revenue_labels;
+                revenueChart.data.datasets[0].data = data.revenue_values;
+                revenueChart.update();
+            } else {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                revenueChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.revenue_labels,
+                        datasets: [{
+                            label: 'Revenue (₦)',
+                            data: data.revenue_values,
+                            borderColor: '#E67E22',
+                            backgroundColor: 'rgba(230,126,34,0.1)',
+                            fill: true
+                        }]
+                    }
+                });
+            }
+            
+            if (categoryChart) {
+                categoryChart.data.labels = data.category_labels;
+                categoryChart.data.datasets[0].data = data.category_values;
+                categoryChart.update();
+            } else {
+                const ctx2 = document.getElementById('categoryChart').getContext('2d');
+                categoryChart = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.category_labels,
+                        datasets: [{
+                            data: data.category_values,
+                            backgroundColor: ['#E67E22', '#F39C12', '#D35400', '#FFD700', '#E67E22']
+                        }]
+                    }
+                });
+            }
+            
+            if (customerChart) {
+                customerChart.data.labels = data.customer_labels;
+                customerChart.data.datasets[0].data = data.customer_values;
+                customerChart.update();
+            } else {
+                const ctx3 = document.getElementById('customerChart').getContext('2d');
+                customerChart = new Chart(ctx3, {
+                    type: 'bar',
+                    data: {
+                        labels: data.customer_labels,
+                        datasets: [{
+                            label: 'New Customers',
+                            data: data.customer_values,
+                            backgroundColor: '#E67E22'
+                        }]
+                    }
+                });
+            }
+        });
+}
+
+document.getElementById('timeRange').addEventListener('change', function() {
+    loadAnalyticsData(this.value);
+});
+
+// Initial load
+loadAnalyticsData(30);
+</script>
+{% endblock %}

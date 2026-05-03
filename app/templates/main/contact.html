@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Golden Kitchen Nigeria{% endblock %}
+
+{% block content %}
+<div class="contact-page py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Send us a message</h3>
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" name="phone" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subject</label>
+                                <input type="text" name="subject" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Message</label>
+                                <textarea name="message" class="form-control" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-terracotta">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Contact Information</h3>
+                        <p><i class="fas fa-map-marker-alt text-terracotta me-2"></i> Lagos, Nigeria</p>
+                        <p><i class="fas fa-phone text-terracotta me-2"></i> +234 812 345 6789</p>
+                        <p><i class="fab fa-whatsapp text-terracotta me-2"></i> +234 812 345 6789</p>
+                        <p><i class="fas fa-envelope text-terracotta me-2"></i> hello@goldenkitchen.ng</p>
+                        <p><i class="fas fa-clock text-terracotta me-2"></i> Mon-Fri: 9am - 6pm (WAT)</p>
+                        <hr>
+                        <h5>Payment Methods</h5>
+                        <div class="payment-icons">
+                            <i class="fas fa-money-bill-wave"></i> Cash on Delivery
+                            <i class="fas fa-university"></i> Bank Transfer
+                            <i class="fas fa-credit-card"></i> Card Payment
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

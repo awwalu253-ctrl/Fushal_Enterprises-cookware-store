@@ -1,0 +1,93 @@
+{% extends "admin/base_admin.html" %}
+
+{% block page_title %}Coupon Management{% endblock %}
+
+{% block admin_content %}
+<div class="coupons-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Coupon Management</h2>
+        <a href="{{ url_for('admin.add_coupon') }}" class="btn btn-terracotta">
+            <i class="fas fa-plus"></i> Add Coupon
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Description</th>
+                            <th>Discount</th>
+                            <th>Min Order</th>
+                            <th>Used/Limit</th>
+                            <th>Valid Until</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for coupon in coupons %}
+                        <tr>
+                            <td><strong>{{ coupon.code }}</strong></td>
+                            <td>{{ coupon.description or 'N/A' }}</td>
+                            <td>
+                                {% if coupon.discount_type == 'percentage' %}
+                                {{ coupon.discount_value }}% off
+                                {% else %}
+                                ₦{{ "%.2f"|format(coupon.discount_value) }} off
+                                {% endif %}
+                            </td>
+                            <td>₦{{ "%.2f"|format(coupon.min_order_amount) }}</td>
+                            <td>{{ coupon.used_count }}/{{ coupon.usage_limit or '∞' }}</td>
+                            <td>
+                                {% if coupon.valid_until %}
+                                {{ coupon.valid_until.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                Never
+                                {% endif %}
+                            </td>
+                            <form method="POST" action="{{ url_for('admin.reset_coupon_usage', coupon_id=coupon.id) }}"
+                                style="display:inline">
+                                <button class="btn btn-sm btn-warning"
+                                    onclick="return confirm('Reset usage count for this coupon?')">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </form>
+                            <td>
+                                {% if coupon.is_active and coupon.is_valid() %}
+                                <span class="badge bg-success">Active</span>
+                                {% elif not coupon.is_active %}
+                                <span class="badge bg-secondary">Disabled</span>
+                                {% else %}
+                                <span class="badge bg-danger">Expired</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.edit_coupon', coupon_id=coupon.id) }}"
+                                    class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.toggle_coupon', coupon_id=coupon.id) }}"
+                                    style="display:inline">
+                                    <button class="btn btn-sm btn-info">
+                                        <i class="fas fa-{{ 'toggle-on' if coupon.is_active else 'toggle-off' }}"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin.delete_coupon', coupon_id=coupon.id) }}"
+                                    style="display:inline" onsubmit="return confirm('Delete this coupon?')">
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

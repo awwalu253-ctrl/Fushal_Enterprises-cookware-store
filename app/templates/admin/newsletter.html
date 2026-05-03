@@ -1,0 +1,82 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Newsletter Management{% endblock %}
+{% block admin_content %}
+<div class="newsletter-page">
+    <h1 class="mb-4">Newsletter Subscribers</h1>
+    
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Send Campaign</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.send_newsletter') }}">
+                        <div class="mb-3">
+                            <label class="form-label">Subject</label>
+                            <input type="text" name="subject" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email Content (HTML)</label>
+                            <textarea name="content" class="form-control" rows="10" required placeholder="<p>Your HTML email content here...</p>"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-terracotta">Send to {{ subscribers|length }} Subscribers</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Active Subscribers ({{ subscribers|length }})</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr><th>Email</th><th>Subscribed</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for sub in subscribers %}
+                                <tr>
+                                    <td>{{ sub.email }}</td>
+                                    <td>{{ sub.subscribed_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('admin.remove_subscriber', subscriber_id=sub.id) }}" style="display:inline">
+                                            <button class="btn btn-sm btn-danger">Remove</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Unsubscribed ({{ unsubscribed|length }})</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr><th>Email</th><th>Unsubscribed</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for sub in unsubscribed %}
+                                <tr><td>{{ sub.email }}</td><td>{{ sub.unsubscribed_at.strftime('%Y-%m-%d') }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+cooking-utensils-store/
+├── app/
+│   ├── __init__.py           # App factory
+│   ├── extensions.py         # Flask extensions
+│   ├── models.py             # Database models
+│   ├── forms.py              # WTForms
+│   ├── utils.py              # Helper functions
+│   │
+│   ├── blueprints/
+│   │   ├── __init__.py
+│   │   ├── main.py           # Home, products, search
+│   │   ├── auth.py           # Login, register, verification
+│   │   ├── cart.py           # Cart functionality
+│   │   ├── checkout.py       # Checkout & orders
+│   │   ├── user.py           # Dashboard, profile, wishlist
+│   │   ├── admin.py          # Admin panel
+│   │   ├── api.py            # REST API endpoints
+│   │   └── chat.py           # Live chat
+│   │
+│   ├── templates/
+│   │   ├── base.html         # Base template
+│   │   ├── components/       # Reusable components
+│   │   │   ├── navbar.html
+│   │   │   ├── footer.html
+│   │   │   ├── cart_modal.html
+│   │   │   └── chat_widget.html
+│   │   │
+│   │   ├── main/
+│   │   │   ├── index.html
+│   │   │   ├── products.html
+│   │   │   ├── product_detail.html
+│   │   │   ├── search_results.html
+│   │   │   ├── faq.html
+│   │   │   └── contact.html
+│   │   │
+│   │   ├── auth/
+│   │   │   ├── login.html
+│   │   │   ├── register.html
+│   │   │   ├── forgot_password.html
+│   │   │   ├── reset_password.html
+│   │   │   └── verify_email.html
+│   │   │
+│   │   ├── user/
+│   │   │   ├── dashboard.html
+│   │   │   ├── orders.html
+│   │   │   ├── order_detail.html
+│   │   │   ├── profile.html
+│   │   │   ├── edit_profile.html
+│   │   │   └── wishlist.html
+│   │   │
+│   │   ├── admin/
+│   │   │   ├── dashboard.html
+│   │   │   ├── analytics.html
+│   │   │   ├── products.html
+│   │   │   ├── add_product.html
+│   │   │   ├── edit_product.html
+│   │   │   ├── categories.html
+│   │   │   ├── orders.html
+│   │   │   ├── customers.html
+│   │   │   ├── newsletter.html
+│   │   │   └── chat_dashboard.html
+│   │   │
+│   │   ├── cart/
+│   │   │   └── cart.html
+│   │   │
+│   │   └── checkout/
+│   │       ├── shipping.html
+│   │       └── confirmation.html
+│   │
+│   ├── static/
+│   │   ├── css/
+│   │   │   ├── style.css
+│   │   │   └── admin.css
+│   │   ├── js/
+│   │   │   ├── main.js
+│   │   │   ├── cart.js
+│   │   │   ├── chat.js
+│   │   │   └── admin.js
+│   │   ├── images/
+│   │   │   ├── products/
+│   │   │   └── icons/
+│   │   └── uploads/
+│   │
+│   └── data/
+│       └── sample_products.csv
+│
+├── instance/
+│   └── store.db              # SQLite database
+│
+├── migrations/                # Flask-Migrate folder
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_models.py
+│   └── test_routes.py
+│
+├── .env                      # Environment variables
+├── .gitignore
+├── requirements.txt
+├── vercel.json               # Vercel deployment config
+├── wsgi.py                   # Vercel entry point
+├── run.py                    # Local development server
+└── README.md

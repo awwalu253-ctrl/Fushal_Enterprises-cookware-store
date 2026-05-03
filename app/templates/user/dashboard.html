@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 mb-4">
+                <div class="dashboard-sidebar">
+                    <div class="user-info text-center p-3">
+                        <i class="fas fa-user-circle fa-3x text-terracotta mb-2"></i>
+                        <h6>{{ current_user.get_full_name() }}</h6>
+                        <small class="text-muted">{{ current_user.email }}</small>
+                    </div>
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="{{ url_for('user.dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                        </a>
+                        <a class="nav-link" href="{{ url_for('user.orders') }}">
+                            <i class="fas fa-box me-2"></i> My Orders
+                        </a>
+                        <a class="nav-link" href="{{ url_for('user.wishlist') }}">
+                            <i class="fas fa-heart me-2"></i> Wishlist
+                            {% if wishlist_count > 0 %}
+                            <span class="badge bg-terracotta">{{ wishlist_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a class="nav-link" href="{{ url_for('user.profile') }}">
+                            <i class="fas fa-user-edit me-2"></i> Profile
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="dashboard-content">
+                    <h3 class="mb-4">Welcome back, {{ current_user.first_name or current_user.username }}!</h3>
+                    
+                    <!-- Stats Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h4>{{ total_orders }}</h4>
+                                    <p>Total Orders</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h4>${{ "%.2f"|format(total_spent) }}</h4>
+                                    <p>Total Spent</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h4>{{ wishlist_count }}</h4>
+                                    <p>Wishlist Items</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Orders -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Orders</h5>
+                            <a href="{{ url_for('user.orders') }}" class="btn btn-sm btn-terracotta">View All</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Order #</th>
+                                            <th>Date</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in recent_orders %}
+                                        <tr>
+                                            <td>{{ order.order_number }}</td>
+                                            <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                                            <td>${{ "%.2f"|format(order.total) }}</td>
+                                            <td>
+                                                {% if order.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                                {% elif order.status == 'delivered' %}
+                                                <span class="badge bg-success">Delivered</span>
+                                                {% else %}
+                                                <span class="badge bg-info">{{ order.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('user.order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-terracotta">
+                                                    View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-sidebar {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.user-info {
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-sidebar .nav-link {
+    color: #333;
+    padding: 12px 20px;
+    border-radius: 0;
+}
+
+.dashboard-sidebar .nav-link:hover,
+.dashboard-sidebar .nav-link.active {
+    background: #FFF3E0;
+    color: #E67E22;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #E67E22;
+}
+
+.stat-info h4 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.stat-info p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+</style>
+{% endblock %}

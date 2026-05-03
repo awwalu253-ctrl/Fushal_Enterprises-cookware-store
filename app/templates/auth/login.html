@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-page py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-card" data-aos="fade-up">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-utensils auth-icon"></i>
+                        <h2>Welcome Back!</h2>
+                        <p class="text-muted">Login to your account</p>
+                    </div>
+                    
+                    <form method="POST" id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" name="email" class="form-control" required 
+                                       placeholder="Enter your email">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password" id="password" class="form-control" 
+                                       placeholder="Enter your password" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength mt-2"></div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="remember" class="form-check-input" id="remember">
+                            <label class="form-check-label" for="remember">Remember Me</label>
+                            <a href="{{ url_for('auth.forgot_password') }}" class="float-end">Forgot Password?</a>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-terracotta w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i> Login
+                        </button>
+                        
+                        <div class="text-center">
+                            <p class="text-muted">Don't have an account? 
+                                <a href="{{ url_for('auth.register') }}">Sign Up</a>
+                            </p>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="social-login text-center">
+                        <p class="text-muted">Or login with</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <button class="btn btn-outline-secondary" onclick="socialLogin('google')">
+                                <i class="fab fa-google"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="socialLogin('facebook')">
+                                <i class="fab fa-facebook-f"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Password visibility toggle
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        const icon = this.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+});
+
+function socialLogin(provider) {
+    window.location.href = `/auth/${provider}`;
+}
+
+// Form validation
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const email = this.querySelector('input[type="email"]').value;
+    if (!email.includes('@')) {
+        e.preventDefault();
+        showToast('Please enter a valid email', 'error');
+    }
+});
+</script>
+{% endblock %}

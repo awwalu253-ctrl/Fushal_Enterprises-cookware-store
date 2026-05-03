@@ -1,0 +1,101 @@
+{% extends "admin/base_admin.html" %}
+
+{% block page_title %}Edit Coupon{% endblock %}
+
+{% block admin_content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="mb-0">Edit Coupon: {{ coupon.code }}</h4>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Coupon Code *</label>
+                    <input type="text" name="code" class="form-control" value="{{ coupon.code }}" required>
+                    <small class="text-muted">Will be converted to uppercase</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Description</label>
+                    <input type="text" name="description" class="form-control" value="{{ coupon.description or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Discount Type *</label>
+                    <select name="discount_type" class="form-select" required>
+                        <option value="percentage" {% if coupon.discount_type == 'percentage' %}selected{% endif %}>Percentage (%)</option>
+                        <option value="fixed" {% if coupon.discount_type == 'fixed' %}selected{% endif %}>Fixed Amount (₦)</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Discount Value *</label>
+                    <input type="number" name="discount_value" class="form-control" step="0.01" value="{{ coupon.discount_value }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Minimum Order Amount</label>
+                    <input type="number" name="min_order_amount" class="form-control" step="0.01" value="{{ coupon.min_order_amount }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Maximum Discount (for percentage)</label>
+                    <input type="number" name="max_discount" class="form-control" step="0.01" value="{{ coupon.max_discount or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Usage Limit</label>
+                    <input type="number" name="usage_limit" class="form-control" value="{{ coupon.usage_limit or '' }}">
+                    <small class="text-muted">Leave empty for unlimited</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Per User Limit</label>
+                    <input type="number" name="per_user_limit" class="form-control" value="{{ coupon.per_user_limit }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Valid From</label>
+                    <input type="date" name="valid_from" class="form-control" value="{{ coupon.valid_from.strftime('%Y-%m-%d') if coupon.valid_from else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Valid Until</label>
+                    <input type="date" name="valid_until" class="form-control" value="{{ coupon.valid_until.strftime('%Y-%m-%d') if coupon.valid_until else '' }}">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" name="is_active" class="form-check-input" {% if coupon.is_active %}checked{% endif %}>
+                        <label class="form-check-label">Active</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <button type="submit" class="btn btn-terracotta">Update Coupon</button>
+                <a href="{{ url_for('admin.manage_coupons') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Coupon Statistics</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h6>Times Used</h6>
+                    <h3>{{ coupon.used_count }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h6>Usage Limit</h6>
+                    <h3>{{ coupon.usage_limit or '∞' }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <h6>Remaining Uses</h6>
+                    <h3>{{ coupon.usage_limit - coupon.used_count if coupon.usage_limit else '∞' }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

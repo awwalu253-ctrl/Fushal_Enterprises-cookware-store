@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmation{% endblock %}
+{% block content %}
+<div class="confirmation-page py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+            <h1>Thank You for Your Order!</h1>
+            <p class="lead">Your order has been placed successfully.</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h4>Order Details</h4>
+                <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at.strftime('%B %d, %Y') }}</p>
+                <p><strong>Total Amount:</strong> ${{ "%.2f"|format(order.total) }}</p>
+                <p><strong>Status:</strong> {{ order.status|capitalize }}</p>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <a href="{{ url_for('user.order_detail', order_id=order.id) }}" class="btn btn-terracotta">View Order Details</a>
+                    <a href="{{ url_for('main.products') }}" class="btn btn-outline-terracotta">Continue Shopping</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

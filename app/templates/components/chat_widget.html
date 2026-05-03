@@ -1,0 +1,498 @@
+<div class="chat-widget" id="chatWidget">
+    <div class="chat-toggle" id="chatToggle">
+        <i class="fas fa-comment-dots"></i>
+        <span class="chat-notification" id="chatNotification">0</span>
+    </div>
+    
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-headset me-2"></i>
+                    <span>Customer Support</span>
+                </div>
+                <div>
+                    <span class="status-badge online" id="agentStatus">
+                        <i class="fas fa-circle"></i> Online
+                    </span>
+                    <button class="btn-close btn-close-white ms-2" id="closeChat"></button>
+                </div>
+            </div>
+            <div class="auto-reply-info small mt-1">
+                <i class="fas fa-robot"></i> We typically respond within 5 minutes
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message system-message">
+                <div class="message-content">
+                    <i class="fas fa-info-circle me-1"></i> 
+                    Welcome to Golden Kitchen Nigeria! 🇳🇬 How can we help you today?
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        </div>
+        
+        <div class="chat-typing" id="chatTyping" style="display: none;">
+            <div class="typing-indicator">
+                <span></span><span></span><span></span>
+                <span class="ms-2">Support is typing...</span>
+            </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" class="form-control" id="chatInput" placeholder="Type your message..." maxlength="500">
+            <button class="btn btn-terracotta" id="sendMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        <div class="chat-footer">
+            <small class="text-muted">
+                <i class="fas fa-lock"></i> Secure & Encrypted
+            </small>
+        </div>
+    </div>
+</div>
+
+<style>
+.chat-widget {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+
+.chat-toggle {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #E67E22, #D35400);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(230,126,34,0.4);
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 1.5rem;
+    position: relative;
+}
+
+.chat-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(230,126,34,0.5);
+}
+
+.chat-notification {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+    min-width: 20px;
+    text-align: center;
+    display: none;
+}
+
+.chat-notification.show {
+    display: block;
+    animation: bounce 0.5s ease;
+}
+
+.chat-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 380px;
+    height: 550px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+}
+
+.chat-window.active {
+    display: flex;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #E67E22, #D35400);
+    color: white;
+    padding: 15px;
+}
+
+.status-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.2);
+}
+
+.status-badge.online {
+    background: #2ecc71;
+}
+
+.status-badge i {
+    font-size: 0.6rem;
+    margin-right: 4px;
+}
+
+.auto-reply-info {
+    font-size: 0.7rem;
+    opacity: 0.9;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.message.user-message {
+    align-items: flex-end;
+}
+
+.message.user-message .message-content {
+    background: linear-gradient(135deg, #E67E22, #D35400);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+}
+
+.message.admin-message .message-content,
+.message.auto-message .message-content {
+    background: white;
+    color: #333;
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.message.system-message {
+    align-items: center;
+}
+
+.message.system-message .message-content {
+    background: #e9ecef;
+    color: #666;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    max-width: 90%;
+}
+
+.message-content {
+    max-width: 80%;
+    padding: 10px 15px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.message-time {
+    font-size: 0.7rem;
+    color: #999;
+    margin-top: 4px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.chat-typing {
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #E67E22;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-10px); opacity: 1; }
+}
+
+.chat-input-area {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    background: white;
+}
+
+.chat-input-area input {
+    flex: 1;
+    border-radius: 25px;
+    padding: 10px 15px;
+}
+
+.chat-input-area button {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-footer {
+    padding: 8px 15px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    font-size: 0.7rem;
+    background: white;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+@media (max-width: 480px) {
+    .chat-window {
+        width: calc(100vw - 40px);
+        right: -20px;
+        bottom: 70px;
+        height: 500px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatToggle = document.getElementById('chatToggle');
+    const chatWindow = document.getElementById('chatWindow');
+    const closeChat = document.getElementById('closeChat');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendMessage');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatTyping = document.getElementById('chatTyping');
+    const chatNotification = document.getElementById('chatNotification');
+    
+    let sessionId = localStorage.getItem('chat_session_id');
+    if (!sessionId) {
+        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('chat_session_id', sessionId);
+    }
+    
+    let isOpen = false;
+    let messageCheckInterval = null;
+    
+    // Load messages when opening
+    function loadMessages() {
+        fetch('/chat/messages')
+            .then(response => response.json())
+            .then(data => {
+                if (data.messages && data.messages.length > 0) {
+                    chatMessages.innerHTML = '';
+                    data.messages.forEach(msg => displayMessage(msg));
+                }
+                scrollToBottom();
+            })
+            .catch(error => console.error('Error loading messages:', error));
+    }
+    
+    // Display a message in the chat window
+    function displayMessage(msg) {
+        const messageDiv = document.createElement('div');
+        let messageClass = '';
+        
+        if (msg.sender === 'user') {
+            messageClass = 'user-message';
+        } else if (msg.sender === 'admin') {
+            messageClass = 'admin-message';
+        } else if (msg.sender === 'auto') {
+            messageClass = 'auto-message';
+        } else {
+            messageClass = 'system-message';
+        }
+        
+        messageDiv.className = `message ${messageClass}`;
+        
+        const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="message-content">${escapeHtml(msg.message)}</div>
+            <div class="message-time">${time}</div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function showTyping() {
+        chatTyping.style.display = 'block';
+        setTimeout(() => {
+            chatTyping.style.display = 'none';
+        }, 3000);
+    }
+    
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+        
+        // Disable input while sending
+        sendBtn.disabled = true;
+        chatInput.disabled = true;
+        
+        fetch('/chat/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Display user message
+                displayMessage(data.message);
+                chatInput.value = '';
+                
+                // Display auto-reply if any
+                if (data.auto_reply) {
+                    setTimeout(() => {
+                        displayMessage(data.auto_reply);
+                    }, 1000);
+                }
+                
+                // Update unread count (for admin)
+                checkUnreadCount();
+            } else {
+                console.error('Error:', data.error);
+                alert('Failed to send message. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to send message. Please try again.');
+        })
+        .finally(() => {
+            sendBtn.disabled = false;
+            chatInput.disabled = false;
+            chatInput.focus();
+        });
+    }
+    
+    function checkUnreadCount() {
+        fetch('/chat/unread-count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.count > 0) {
+                    chatNotification.textContent = data.count > 9 ? '9+' : data.count;
+                    chatNotification.classList.add('show');
+                } else {
+                    chatNotification.classList.remove('show');
+                }
+            })
+            .catch(() => {});
+    }
+    
+    // Toggle chat window
+    chatToggle.addEventListener('click', function() {
+        if (!isOpen) {
+            chatWindow.classList.add('active');
+            loadMessages();
+            isOpen = true;
+            chatNotification.classList.remove('show');
+            
+            // Start polling for new messages
+            if (messageCheckInterval) clearInterval(messageCheckInterval);
+            messageCheckInterval = setInterval(() => {
+                if (isOpen) {
+                    fetch('/chat/messages')
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.messages) {
+                                const currentCount = chatMessages.querySelectorAll('.message').length;
+                                if (data.messages.length > currentCount) {
+                                    loadMessages();
+                                }
+                            }
+                        });
+                }
+            }, 3000);
+        } else {
+            chatWindow.classList.remove('active');
+            isOpen = false;
+            if (messageCheckInterval) {
+                clearInterval(messageCheckInterval);
+                messageCheckInterval = null;
+            }
+        }
+    });
+    
+    closeChat.addEventListener('click', function() {
+        chatWindow.classList.remove('active');
+        isOpen = false;
+        if (messageCheckInterval) {
+            clearInterval(messageCheckInterval);
+            messageCheckInterval = null;
+        }
+    });
+    
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    
+    // Auto-focus input when opening
+    chatWindow.addEventListener('transitionend', function() {
+        if (isOpen) {
+            chatInput.focus();
+        }
+    });
+    
+    // Check unread count periodically
+    setInterval(checkUnreadCount, 10000);
+    checkUnreadCount();
+});
+</script>

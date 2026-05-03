@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Resend Verification{% endblock %}
+{% block content %}
+<div class="auth-page py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="auth-card">
+                    <h2 class="text-center mb-4">Resend Verification Email</h2>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-terracotta w-100">Resend Verification</button>
+                    </form>
+                    <p class="text-center mt-3"><a href="{{ url_for('auth.login') }}">Back to Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,562 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Golden Kitchen Nigeria{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Admin Sidebar */
+.admin-wrapper {
+    display: flex;
+    min-height: calc(100vh - 70px);
+}
+
+.admin-sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 70px;
+    bottom: 0;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    z-index: 99;
+}
+
+.admin-sidebar.collapsed {
+    width: 70px;
+}
+
+.admin-sidebar.collapsed .sidebar-text,
+.admin-sidebar.collapsed .badge-notification {
+    display: none;
+}
+
+.admin-sidebar.collapsed .nav-link i {
+    margin-right: 0;
+}
+
+.admin-sidebar.collapsed .sidebar-header h4,
+.admin-sidebar.collapsed .sidebar-header p {
+    display: none;
+}
+
+.admin-sidebar.collapsed .sidebar-header {
+    padding: 15px 0;
+}
+
+.admin-sidebar.collapsed .user-avatar {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+    position: fixed;
+    left: 290px;
+    top: 80px;
+    background: #E67E22;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-toggle:hover {
+    background: #D35400;
+    transform: scale(1.05);
+}
+
+.admin-sidebar.collapsed + .sidebar-toggle {
+    left: 85px;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 20px;
+}
+
+.user-avatar {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #E67E22, #D35400);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 32px;
+}
+
+.sidebar-header h4 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.sidebar-header p {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-bottom: 0;
+}
+
+/* Navigation */
+.sidebar-nav {
+    padding: 0 15px;
+}
+
+.nav-section {
+    margin-bottom: 20px;
+}
+
+.nav-section-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.5);
+    padding: 10px 15px;
+    margin-bottom: 5px;
+}
+
+.sidebar-nav .nav-link {
+    color: rgba(255,255,255,0.8);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.sidebar-nav .nav-link i {
+    width: 20px;
+    font-size: 1.1rem;
+}
+
+.sidebar-nav .nav-link:hover {
+    background: rgba(230,126,34,0.2);
+    color: #E67E22;
+    transform: translateX(5px);
+}
+
+.sidebar-nav .nav-link.active {
+    background: linear-gradient(135deg, #E67E22, #D35400);
+    color: white;
+    box-shadow: 0 4px 15px rgba(230,126,34,0.3);
+}
+
+.sidebar-nav .nav-link.active i {
+    color: white;
+}
+
+/* Badge styles */
+.badge-notification {
+    background: #E67E22;
+    color: white;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    margin-left: auto;
+}
+
+/* Main Content Area */
+.admin-content {
+    margin-left: 280px;
+    padding: 20px;
+    background: #f5f7fb;
+    min-height: calc(100vh - 70px);
+    width: calc(100% - 280px);
+    transition: all 0.3s ease;
+}
+
+.admin-sidebar.collapsed ~ .admin-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+}
+
+/* Top Navbar */
+.admin-topbar {
+    background: white;
+    padding: 15px 30px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: #2C3E50;
+}
+
+.topbar-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.topbar-icon {
+    position: relative;
+    cursor: pointer;
+}
+
+.topbar-icon .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #E67E22;
+    font-size: 0.7rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        width: 260px;
+    }
+    
+    .admin-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    .admin-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .sidebar-toggle {
+        left: 20px;
+    }
+    
+    .mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 98;
+        display: none;
+    }
+    
+    .mobile-overlay.show {
+        display: block;
+    }
+}
+
+/* Scrollbar */
+.admin-sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+    background: #E67E22;
+    border-radius: 5px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-chevron-left" id="toggleIcon"></i>
+    </button>
+    
+    <!-- Admin Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="user-avatar">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h4>{{ current_user.get_full_name() }}</h4>
+            <p>Administrator</p>
+            <span class="badge bg-terracotta">Super Admin</span>
+        </div>
+        
+        <div class="sidebar-nav">
+            <!-- MAIN Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">MAIN</div>
+                <a class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" 
+                   href="{{ url_for('admin.dashboard') }}">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+                <a class="nav-link {% if request.endpoint == 'admin.analytics' %}active{% endif %}" 
+                   href="{{ url_for('admin.analytics') }}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="sidebar-text">Analytics</span>
+                </a>
+            </div>
+            
+            <!-- STORE Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">STORE</div>
+                <a class="nav-link {% if 'products' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.manage_products') }}">
+                    <i class="fas fa-box"></i>
+                    <span class="sidebar-text">Products</span>
+                </a>
+                <a class="nav-link {% if 'categories' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.manage_categories') }}">
+                    <i class="fas fa-tags"></i>
+                    <span class="sidebar-text">Categories</span>
+                </a>
+                <a class="nav-link {% if 'orders' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.manage_orders') }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="sidebar-text">Orders</span>
+                    <span class="badge-notification" id="pendingOrdersBadge" style="display: none;">0</span>
+                </a>
+            </div>
+            
+            <!-- CUSTOMERS Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">CUSTOMERS</div>
+                <a class="nav-link {% if 'customers' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.manage_customers') }}">
+                    <i class="fas fa-users"></i>
+                    <span class="sidebar-text">All Customers</span>
+                </a>
+            </div>
+            
+            <!-- MARKETING Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">MARKETING</div>
+                <a class="nav-link {% if 'coupons' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.manage_coupons') }}">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span class="sidebar-text">Coupons</span>
+                </a>
+                <a class="nav-link {% if 'reviews' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.manage_reviews') }}">
+                    <i class="fas fa-star"></i>
+                    <span class="sidebar-text">Reviews</span>
+                    <span class="badge-notification" id="pendingReviewsBadge" style="display: none;">0</span>
+                </a>
+                <a class="nav-link {% if 'newsletter' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.manage_newsletter') }}">
+                    <i class="fas fa-envelope"></i>
+                    <span class="sidebar-text">Newsletter</span>
+                </a>
+            </div>
+            
+            <!-- SUPPORT Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">SUPPORT</div>
+                <a class="nav-link {% if 'chat' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.chat_dashboard') }}">
+                    <i class="fas fa-comments"></i>
+                    <span class="sidebar-text">Live Chat</span>
+                    <span class="badge-notification" id="unreadChatBadge" style="display: none;">0</span>
+                </a>
+            </div>
+            
+            <!-- REPORTS Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">REPORTS</div>
+                <a class="nav-link {% if 'reports' in request.endpoint %}active{% endif %}" 
+                   href="{{ url_for('admin.reports') }}">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="sidebar-text">Sales Reports</span>
+                </a>
+            </div>
+            
+            <!-- SETTINGS Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">SETTINGS</div>
+                <a class="nav-link" href="{{ url_for('main.index') }}">
+                    <i class="fas fa-globe"></i>
+                    <span class="sidebar-text">View Store</span>
+                </a>
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="admin-content">
+        <div class="admin-topbar">
+            <h2 class="page-title">
+                {% block page_title %}Dashboard{% endblock %}
+            </h2>
+            <div class="topbar-actions">
+                <div class="dropdown">
+                    <button class="btn btn-outline-terracotta dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>
+                        {{ current_user.username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">
+                            <i class="fas fa-user me-2"></i> My Profile
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        {% block admin_content %}{% endblock %}
+    </div>
+</div>
+
+<script>
+// Sidebar Toggle
+const sidebarToggle = document.getElementById('sidebarToggle');
+if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', function() {
+        const sidebar = document.getElementById('adminSidebar');
+        const icon = document.getElementById('toggleIcon');
+        
+        sidebar.classList.toggle('collapsed');
+        
+        if (sidebar.classList.contains('collapsed')) {
+            icon.classList.remove('fa-chevron-left');
+            icon.classList.add('fa-chevron-right');
+        } else {
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-left');
+        }
+        
+        // Save state to localStorage
+        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+    });
+}
+
+// Load sidebar state from localStorage
+const savedState = localStorage.getItem('sidebarCollapsed');
+if (savedState === 'true') {
+    const sidebar = document.getElementById('adminSidebar');
+    const icon = document.getElementById('toggleIcon');
+    if (sidebar && icon) {
+        sidebar.classList.add('collapsed');
+        icon.classList.remove('fa-chevron-left');
+        icon.classList.add('fa-chevron-right');
+    }
+}
+
+// Mobile menu handling
+const sidebar = document.getElementById('adminSidebar');
+const overlay = document.getElementById('mobileOverlay');
+
+function closeMobileMenu() {
+    if (sidebar) sidebar.classList.remove('mobile-open');
+    if (overlay) overlay.classList.remove('show');
+}
+
+function openMobileMenu() {
+    if (sidebar) sidebar.classList.add('mobile-open');
+    if (overlay) overlay.classList.add('show');
+}
+
+if (overlay) {
+    overlay.addEventListener('click', closeMobileMenu);
+}
+
+// Handle screen size
+function handleMobile() {
+    if (window.innerWidth <= 768) {
+        if (sidebar) sidebar.classList.remove('collapsed');
+        const toggle = document.getElementById('sidebarToggle');
+        if (toggle) toggle.style.display = 'none';
+    } else {
+        const toggle = document.getElementById('sidebarToggle');
+        if (toggle) toggle.style.display = 'flex';
+    }
+}
+
+window.addEventListener('resize', handleMobile);
+handleMobile();
+
+// Fetch pending orders count
+function fetchPendingOrders() {
+    fetch('/admin/api/pending-orders-count')
+        .then(r => r.json())
+        .then(data => {
+            const badge = document.getElementById('pendingOrdersBadge');
+            if (badge && data.count > 0) {
+                badge.textContent = data.count;
+                badge.style.display = 'inline-block';
+            } else if (badge) {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(() => {});
+}
+
+// Fetch pending reviews count
+function fetchPendingReviews() {
+    fetch('/admin/api/pending-reviews-count')
+        .then(r => r.json())
+        .then(data => {
+            const badge = document.getElementById('pendingReviewsBadge');
+            if (badge && data.count > 0) {
+                badge.textContent = data.count;
+                badge.style.display = 'inline-block';
+            } else if (badge) {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(() => {});
+}
+
+// Fetch unread chat count
+function fetchUnreadChatCount() {
+    fetch('/chat/unread-count')
+        .then(r => r.json())
+        .then(data => {
+            const badge = document.getElementById('unreadChatBadge');
+            if (badge && data.count > 0) {
+                badge.textContent = data.count;
+                badge.style.display = 'inline-block';
+            } else if (badge) {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(() => {});
+}
+
+// Fetch counts every 30 seconds
+setInterval(() => {
+    fetchPendingOrders();
+    fetchPendingReviews();
+    fetchUnreadChatCount();
+}, 30000);
+
+// Initial fetch
+fetchPendingOrders();
+fetchPendingReviews();
+fetchUnreadChatCount();
+</script>
+{% endblock %}

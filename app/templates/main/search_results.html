@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for "{{ query }}"{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Search Results</li>
+{% endblock %}
+
+{% block content %}
+<div class="search-results py-5">
+    <div class="container">
+        <h1 class="mb-4">Search Results for "{{ query }}"</h1>
+        
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="filter-sidebar">
+                    <h5>Refine Search</h5>
+                    <form action="{{ url_for('main.search') }}" method="GET">
+                        <input type="hidden" name="q" value="{{ query }}">
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Min Price</label>
+                            <input type="number" name="min_price" class="form-control" step="10">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Max Price</label>
+                            <input type="number" name="max_price" class="form-control" step="10">
+                        </div>
+                        <button type="submit" class="btn btn-terracotta w-100">Filter</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-lg-9">
+                {% if products %}
+                <div class="row g-4">
+                    {% for product in products %}
+                    <div class="col-md-4">
+                        {% include 'components/product_card.html' %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                    <h3>No products found</h3>
+                    <p>Try different keywords or browse our categories.</p>
+                    <a href="{{ url_for('main.products') }}" class="btn btn-terracotta">View All Products</a>
+                    <a href="{{ url_for('main.advanced_search') }}" class="btn btn-outline-terracotta">Advanced Search</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

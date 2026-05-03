@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Advanced Search{% endblock %}
+{% block content %}
+<div class="search-page py-5">
+    <div class="container">
+        <h1 class="mb-4">Advanced Search</h1>
+        <div class="card">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('main.products') }}">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Search Keywords</label>
+                            <input type="text" name="search" class="form-control" placeholder="Product name...">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" name="brand" class="form-control" placeholder="Brand name">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Min Price</label>
+                            <input type="number" name="min_price" class="form-control" step="10">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Max Price</label>
+                            <input type="number" name="max_price" class="form-control" step="10">
+                        </div>
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-terracotta">Search</button>
+                            <a href="{{ url_for('main.products') }}" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

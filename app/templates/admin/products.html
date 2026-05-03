@@ -1,0 +1,54 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Manage Products{% endblock %}
+{% block admin_content %}
+<div class="products-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Products ({{ products|length }})</h1>
+        <div>
+            <a href="{{ url_for('admin.export_products') }}" class="btn btn-outline-terracotta">
+                <i class="fas fa-download"></i> Export CSV
+            </a>
+            <a href="{{ url_for('admin.add_product') }}" class="btn btn-terracotta">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Image</th><th>Name</th><th>SKU</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td>
+                                <img src="{{ product.image_url or url_for('static', filename='images/placeholder.jpg') }}" style="width: 50px; height: 50px; object-fit: cover;">
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.sku }}</td>
+                            <td>${{ "%.2f"|format(product.price) }}</td>
+                            <td class="{% if product.stock_quantity <= product.low_stock_threshold %}text-danger{% endif %}">
+                                {{ product.stock_quantity }}
+                            </td>
+                            <td>{% if product.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                            <td>
+                                <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                                <form method="POST" action="{{ url_for('admin.delete_product', product_id=product.id) }}" style="display:inline" onsubmit="return confirm('Delete this product?')">
+                                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

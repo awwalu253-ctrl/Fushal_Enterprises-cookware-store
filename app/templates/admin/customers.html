@@ -1,0 +1,45 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Manage Customers{% endblock %}
+{% block admin_content %}
+<div class="customers-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Customers ({{ customers|length }})</h1>
+        <a href="{{ url_for('admin.export_customers') }}" class="btn btn-terracotta">
+            <i class="fas fa-download"></i> Export CSV
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Name</th><th>Email</th><th>Joined</th><th>Orders</th><th>Total Spent</th><th>Status</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in customers %}
+                        <tr>
+                            <td>{{ customer.id }}</td>
+                            <td>{{ customer.get_full_name() }}</td>
+                            <td>{{ customer.email }}</td>
+                            <td>{{ customer.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ customer.order_count }}</td>
+                            <td>${{ "%.2f"|format(customer.total_spent) }}</td>
+                            <td>{% if customer.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                            <td>
+                                <a href="{{ url_for('admin.customer_detail', user_id=customer.id) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                                <form method="POST" action="{{ url_for('admin.verify_customer', user_id=customer.id) }}" style="display:inline">
+                                    <button class="btn btn-sm btn-warning"><i class="fas fa-check"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

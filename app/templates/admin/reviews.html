@@ -1,0 +1,108 @@
+{% extends "admin/base_admin.html" %}
+
+{% block page_title %}Review Management{% endblock %}
+
+{% block admin_content %}
+<div class="reviews-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Product Reviews <span class="badge bg-warning">{{ pending_count }} Pending</span></h2>
+        <form method="POST" action="{{ url_for('admin.bulk_approve_reviews') }}" id="bulkApproveForm">
+            <button type="submit" class="btn btn-terracotta" id="bulkApproveBtn" style="display: none;">
+                <i class="fas fa-check-double"></i> Approve Selected
+            </button>
+        </form>
+    </div>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAll"></th>
+                            <th>Product</th>
+                            <th>Customer</th>
+                            <th>Rating</th>
+                            <th>Review</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for review in reviews %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="review_ids" value="{{ review.id }}" class="review-checkbox" form="bulkApproveForm">
+                             </td>
+                            <td>
+                                <a href="{{ url_for('main.product_detail', slug=review.product.slug) }}">
+                                    {{ review.product.name[:30] }}
+                                </a>
+                             </td>
+                            <td>{{ review.user.get_full_name() }}</td>
+                            <td>
+                                <div class="rating">
+                                    {% for i in range(review.rating) %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% endfor %}
+                                    {% for i in range(5 - review.rating) %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endfor %}
+                                </div>
+                             </td>
+                            <td>
+                                <strong>{{ review.title }}</strong><br>
+                                <small>{{ review.comment[:80] }}{% if review.comment|length > 80 %}...{% endif %}</small>
+                             </td>
+                            <td>{{ review.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if review.is_approved %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                             </td>
+                            <td>
+                                {% if not review.is_approved %}
+                                <form method="POST" action="{{ url_for('admin.approve_review', review_id=review.id) }}" style="display:inline">
+                                    <button class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('admin.delete_review', review_id=review.id) }}" style="display:inline" onsubmit="return confirm('Delete this review?')">
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                             </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('selectAll')?.addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.review-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    updateBulkButton();
+});
+
+document.querySelectorAll('.review-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateBulkButton);
+});
+
+function updateBulkButton() {
+    const checked = document.querySelectorAll('.review-checkbox:checked').length;
+    const btn = document.getElementById('bulkApproveBtn');
+    if (btn) {
+        btn.style.display = checked > 0 ? 'inline-block' : 'none';
+    }
+}
+</script>
+{% endblock %}

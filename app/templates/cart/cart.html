@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="cart-page py-5">
+    <div class="container">
+        <h1 class="mb-4">Shopping Cart</h1>
+        
+        {% if cart_items %}
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr data-product-id="{{ item.product.id }}">
+                                <td>
+                                    <div class="cart-product d-flex align-items-center">
+                                        <img src="{{ item.product.image_url or url_for('static', filename='images/placeholder.jpg') }}" 
+                                             alt="{{ item.product.name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                                        <div class="ms-3">
+                                            <h6 class="mb-0">{{ item.product.name }}</h6>
+                                            <small class="text-muted">SKU: {{ item.product.sku }}</small>
+                                        </div>
+                                    </div>
+                                 </td>
+                                <td>₦{{ "%.2f"|format(item.product.price) }}</td>
+                                <td>
+                                    <div class="quantity-selector d-flex align-items-center">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity({{ item.product.id }}, {{ item.quantity - 1 }})">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" class="form-control text-center mx-2" value="{{ item.quantity }}" 
+                                               style="width: 60px;" min="1" max="{{ item.product.stock_quantity }}"
+                                               onchange="updateQuantity({{ item.product.id }}, this.value)">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity({{ item.product.id }}, {{ item.quantity + 1 }})">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                 </td>
+                                <td class="item-total">₦{{ "%.2f"|format(item.total) }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="removeItem({{ item.product.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                 </td>
+                             </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="cart-actions mt-4">
+                    <a href="{{ url_for('main.products') }}" class="btn btn-outline-terracotta">
+                        <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                    </a>
+                    <button class="btn btn-outline-danger ms-2" onclick="clearCart()">
+                        <i class="fas fa-trash-alt me-2"></i> Clear Cart
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="cart-summary card">
+                    <div class="card-body">
+                        <h4 class="card-title">Order Summary</h4>
+                        
+                        <div class="summary-row d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>₦{{ "%.2f"|format(cart_total) }}</span>
+                        </div>
+                        
+                        {% if discount > 0 %}
+                        <div class="summary-row d-flex justify-content-between mb-2 text-success">
+                            <span>Discount ({{ coupon.code }}):</span>
+                            <span>-₦{{ "%.2f"|format(discount) }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="summary-row d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span>Calculated at checkout</span>
+                        </div>
+                        
+                        <div class="summary-row d-flex justify-content-between mb-3">
+                            <span>Tax:</span>
+                            <span>Calculated at checkout</span>
+                        </div>
+                        
+                        <div class="summary-row total d-flex justify-content-between pt-2 border-top">
+                            <strong>Total:</strong>
+                            <strong>₦{{ "%.2f"|format(final_total) }}</strong>
+                        </div>
+                        
+                        <!-- Coupon Form -->
+                        <div class="coupon-section mt-4 pt-2 border-top">
+                            <h6><i class="fas fa-ticket-alt"></i> Apply Coupon</h6>
+                            <div class="input-group mt-2">
+                                <input type="text" id="couponCode" class="form-control" placeholder="Enter coupon code">
+                                <button class="btn btn-terracotta" type="button" onclick="applyCoupon()">
+                                    Apply
+                                </button>
+                            </div>
+                            <div id="couponMessage" class="small mt-2"></div>
+                        </div>
+                        
+                        {% if coupon %}
+                        <div class="applied-coupon mt-3">
+                            <div class="alert alert-success small py-2 mb-0">
+                                <i class="fas fa-check-circle"></i> Coupon applied: <strong>{{ coupon.code }}</strong>
+                                <button type="button" class="btn-close btn-sm float-end" onclick="removeCoupon()"></button>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('checkout.checkout') }}" class="btn btn-terracotta w-100 mt-4">
+                            <i class="fas fa-lock me-2"></i> Proceed to Checkout
+                        </a>
+                        
+                        <div class="payment-icons mt-3 text-center">
+                            <i class="fab fa-cc-visa fa-2x mx-1"></i>
+                            <i class="fab fa-cc-mastercard fa-2x mx-1"></i>
+                            <i class="fab fa-cc-paypal fa-2x mx-1"></i>
+                            <i class="fas fa-money-bill-wave fa-2x mx-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-cart text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+            <h3>Your cart is empty</h3>
+            <p>Looks like you haven't added any items to your cart yet.</p>
+            <a href="{{ url_for('main.products') }}" class="btn btn-terracotta mt-3">
+                <i class="fas fa-store me-2"></i> Start Shopping
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function updateQuantity(productId, quantity) {
+    if (quantity < 1) return;
+    
+    fetch('/cart/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ product_id: productId, quantity: quantity })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    });
+}
+
+function removeItem(productId) {
+    if (confirm('Remove this item from cart?')) {
+        fetch(`/cart/remove/${productId}`, { method: 'POST' })
+            .then(() => location.reload());
+    }
+}
+
+function clearCart() {
+    if (confirm('Clear your entire cart?')) {
+        window.location.href = '/cart/clear';
+    }
+}
+
+function applyCoupon() {
+    const couponCode = document.getElementById('couponCode').value.trim();
+    const messageDiv = document.getElementById('couponMessage');
+    
+    if (!couponCode) {
+        messageDiv.innerHTML = '<div class="text-danger">Please enter a coupon code</div>';
+        return;
+    }
+    
+    // Show loading
+    messageDiv.innerHTML = '<div class="text-info"><i class="fas fa-spinner fa-spin"></i> Applying coupon...</div>';
+    
+    // Create form data
+    const formData = new URLSearchParams();
+    formData.append('coupon_code', couponCode);
+    
+    fetch('/cart/apply-coupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Response:', data); // Debug log
+        if (data.success) {
+            messageDiv.innerHTML = `<div class="text-success"><i class="fas fa-check-circle"></i> ${data.message}</div>`;
+            // Reload page after 1 second to show updated cart
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            messageDiv.innerHTML = `<div class="text-danger"><i class="fas fa-exclamation-circle"></i> ${data.error}</div>`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        messageDiv.innerHTML = '<div class="text-danger">Error applying coupon. Please try again.</div>';
+    });
+}
+
+function removeCoupon() {
+    fetch('/cart/remove-coupon', { method: 'POST' })
+        .then(() => location.reload());
+}
+
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+</script>
+
+<style>
+.cart-product img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.quantity-selector input {
+    text-align: center;
+}
+
+.cart-summary {
+    position: sticky;
+    top: 100px;
+    border: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+}
+
+.summary-row.total {
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 14px;
+    }
+    
+    .cart-product img {
+        width: 40px;
+        height: 40px;
+    }
+}
+</style>
+{% endblock %}
