@@ -19,26 +19,12 @@ migrate = Migrate()
 cors = CORS()
 
 def create_app():
-    app = Flask(__name__, 
-                static_folder='static',
-                template_folder='templates')
+    # Get the absolute path to the app folder
+    app_path = os.path.dirname(os.path.abspath(__file__))
     
-    # Check if running on Vercel
-    is_vercel = os.environ.get('VERCEL', 'false').lower() == 'true'
-    
-    # Configuration
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
-    
-    # Use different database for Vercel vs local
-    if is_vercel:
-        # On Vercel, use Supabase or /tmp SQLite
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////tmp/store.db')
-    else:
-        # Local development
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///store.db')
-    
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    # ... rest of your config
+    app = Flask(__name__,
+                static_folder=os.path.join(app_path, 'static'),
+                template_folder=os.path.join(app_path, 'templates'))
 
 def create_app():
     app = Flask(__name__, 
