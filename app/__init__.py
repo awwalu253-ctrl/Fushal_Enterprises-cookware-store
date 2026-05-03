@@ -1,4 +1,5 @@
 from flask import Flask, render_template, session
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
@@ -6,13 +7,12 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 from datetime import datetime
-from app.blueprints.chat import chat_bp
-
 
 # Load environment variables
 load_dotenv()
 
 # Initialize extensions
+db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 migrate = Migrate()
@@ -24,9 +24,14 @@ def create_app():
                 template_folder='templates')
     
     # Configuration
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-this')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///store.db'
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///store.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # For Vercel, use file-based SQLite
+    if os.getenv('VERCEL'):
+        # Use /tmp for writable storage on Vercel
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/store.db'
     
     # Mail configuration
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
@@ -36,27 +41,18 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     
     # Session configuration
-    app.config['SESSION_COOKIE_SECURE'] = False
+    app.config['SESSION_COOKIE_SECURE'] = os.getenv('FLASK_ENV') == 'production'
     app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['PERMANENT_SESSION_LIFETIME'] = 86400
     
-    app.register_blueprint(chat_bp, url_prefix='/chat')
-
-    
-    # Initialize database
-    from app.models import db
+    # Initialize extensions with app
     db.init_app(app)
-    
-    # Initialize other extensions
     login_manager.init_app(app)
     mail.init_app(app)
     migrate.init_app(app, db)
     cors.init_app(app, supports_credentials=True)
     
-    # Login manager configuration
     login_manager.login_view = 'auth.login'
-    login_manager.login_message = 'Please log in to access this page.'
     
     # Register blueprints
     from app.blueprints.main import main_bp
@@ -75,36 +71,16 @@ def create_app():
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(api_bp, url_prefix='/api')
     
-    # Template context processors - THIS IS THE FIX
+    # Context processor
     @app.context_processor
     def utility_processor():
         def get_cart_count():
             cart = session.get('cart', {})
             return sum(cart.values()) if cart else 0
-        
-        # Get categories for navbar and footer
-        def get_categories():
-            from app.models import Category
-            return Category.query.filter_by(is_active=True).order_by(Category.display_order).limit(6).all()
-        
-        return dict(
-            get_cart_count=get_cart_count,
-            categories=get_categories(),
-            now=datetime.now()
-        )
-    
-    # Error handlers
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return "Page not found", 404
-    
-    @app.errorhandler(500)
-    def internal_error(error):
-        return "Internal server error", 500
+        return dict(get_cart_count=get_cart_count, now=datetime.now())
     
     return app
 
-# User loader
 @login_manager.user_loader
 def load_user(user_id):
     from app.models import User

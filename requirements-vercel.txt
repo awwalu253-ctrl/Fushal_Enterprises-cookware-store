@@ -12,3 +12,6 @@ blinker==1.6.2
 Flask-Migrate==4.0.5
 Flask-CORS==4.0.0
 Pillow==10.0.0
+python-socketio==5.10.0
+eventlet==0.33.3
+# Remove pandas and heavy dependencies - use Python's built-in csv instead
